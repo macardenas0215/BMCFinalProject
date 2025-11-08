@@ -30,11 +30,42 @@ class AuthWrapper extends StatelessWidget {
         }
 
         if (snapshot.hasData && snapshot.data != null) {
-          return const HomeScreen();
+          // Wrap authenticated area with a smooth red border so it's visible
+          return _AuthenticatedBorder(child: const HomeScreen());
         }
 
         return const LoginScreen();
       },
+    );
+  }
+}
+
+/// A small wrapper that adds a smooth animated red border around the
+/// authenticated part of the app. This makes it visually obvious when a
+/// user/admin has entered the authenticated area.
+class _AuthenticatedBorder extends StatelessWidget {
+  final Widget child;
+  const _AuthenticatedBorder({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 420),
+      curve: Curves.easeInOut,
+      padding: const EdgeInsets.all(6),
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: Colors.redAccent, width: 3),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.redAccent.withOpacity(0.06),
+            blurRadius: 12,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: ClipRRect(borderRadius: BorderRadius.circular(10), child: child),
     );
   }
 }

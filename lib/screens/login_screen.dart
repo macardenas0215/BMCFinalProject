@@ -1,6 +1,8 @@
 import 'signup_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// flutter_svg is used by the AnimatedLogo widget (imported below)
+import 'package:ecommerce_app/widgets/animated_logo.dart';
 
 // 1. Create a StatefulWidget
 class LoginScreen extends StatefulWidget {
@@ -41,6 +43,9 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
+    // Capture ScaffoldMessenger before awaiting to avoid using BuildContext across async gaps
+    final messenger = ScaffoldMessenger.of(context);
+
     try {
       await _auth.signInWithEmailAndPassword(
         email: _emailController.text.trim(),
@@ -55,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
         message = 'Wrong password provided.';
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text(message), backgroundColor: Colors.red),
       );
     } catch (e) {
@@ -89,46 +94,63 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // The Form Fields will go here
-                const SizedBox(height: 20),
+                const SizedBox(height: 8),
+                // Animated logo (subtle movement)
+                Center(child: AnimatedLogo(height: 84)),
+                const SizedBox(height: 12),
 
                 // Email field
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
+                // Wrapped in a Card so the form feels distinct and has a gentle rounded area
+                Card(
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _emailController,
+                          decoration: const InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your email';
+                            }
+                            if (!value.contains('@')) {
+                              return 'Please enter a valid email';
+                            }
+                            return null;
+                          },
+                        ),
 
-                const SizedBox(height: 16),
+                        const SizedBox(height: 16),
 
-                // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
+                        // Password field
+                        TextFormField(
+                          controller: _passwordController,
+                          obscureText: true,
+                          decoration: const InputDecoration(
+                            labelText: 'Password',
+                            border: OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            if (value.length < 6) {
+                              return 'Password must be at least 6 characters';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
-                  },
                 ),
 
                 const SizedBox(height: 20),
